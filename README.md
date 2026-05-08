@@ -10,6 +10,7 @@ A production-ready **Model Context Protocol (MCP)** server that connects AI Agen
 - **⚡ Order Automation**: Handle lifecycle events (Paid, Shipped, Cancelled) with automated status transitions.
 - **🛡️ Production Ready**: Includes rate limiting, resilient retries (503 handling), and structured logging.
 - **🌐 Agent Friendly**: Pre-configured with `.cursorrules` and `.windsurfrules` for zero-friction integration with AI IDEs.
+- **📖 Comprehensive Docs**: Detailed [API Reference](API.md) for all available tools.
 
 ## 🛠️ Setup & Installation
 

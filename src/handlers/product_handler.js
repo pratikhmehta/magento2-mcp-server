@@ -24,10 +24,10 @@ export const ProductHandler = {
   },
 
   /**
-   * List products with filtering
+   * List products with filtering and sorting
    */
   async list(args) {
-    const { category_id, limit = 10, search = '' } = args;
+    const { category_id, limit = 10, search = '', sort_field = 'created_at', sort_direction = 'DESC' } = args;
     
     let filters = [];
     let groupIndex = 0;
@@ -45,7 +45,10 @@ export const ProductHandler = {
       groupIndex++;
     }
 
-    const searchCriteria = filters.join('&') + (filters.length ? '&' : '') + `searchCriteria[pageSize]=${limit}`;
+    let searchCriteria = filters.join('&') + (filters.length ? '&' : '') + 
+                        `searchCriteria[pageSize]=${limit}&` +
+                        `searchCriteria[sortOrders][0][field]=${sort_field}&` +
+                        `searchCriteria[sortOrders][0][direction]=${sort_direction}`;
     
     try {
       return await magento.get(`/products?${searchCriteria}`);

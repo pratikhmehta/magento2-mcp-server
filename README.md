@@ -68,19 +68,31 @@ Once the server is running and connected to your AI Agent (Cursor, Claude, etc.)
 ### 🤖 AI Customer Support
 - *"Ask the AI assistant: 'What is the return policy for my last order?' for customer email example@gmail.com."*
 
-## 🔌 Integrating with AI Agents
+## 🔌 Usage & Integration
 
-### Cursor / Windsurf
-This repository includes pre-configured rules in `.cursorrules` and `.windsurfrules`. Simply open the project folder in your IDE, and the agent will automatically recognize its authorized tools.
+There are three ways to use these Magento tools depending on your workflow:
 
-### Claude Desktop
+### Option 1: Web Dashboard (No AI Client Required) 🌐
+The easiest way to get a visual interface for managing your store without using specialized AI software.
+1. Install dependencies: `npm install`
+2. Start the interactive dashboard:
+   ```bash
+   npx @modelcontextprotocol/inspector build/index.js
+   ```
+3. Open the provided link (usually `http://localhost:3000`) in your browser to see a professional UI for all tools.
+
+### Option 2: AI Agents (Cursor, Windsurf, Claude) 🤖
+#### Cursor / Windsurf
+Simply open this project folder in your IDE. The agent will automatically recognize the tools via the included `.cursorrules` or `.windsurfrules`.
+
+#### Claude Desktop
 Add this to your `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
     "magento-mcp": {
       "command": "node",
-      "args": ["/path/to/magento2-mcp-server/index.js"],
+      "args": ["/absolute/path/to/magento2-mcp-server/build/index.js"],
       "env": {
         "MAGENTO_BASE_URL": "https://your-store.com/rest/V1",
         "MAGENTO_TOKEN": "your-access-token",
@@ -90,6 +102,13 @@ Add this to your `claude_desktop_config.json`:
   }
 }
 ```
+
+### Option 3: Command Line (CLI) 💻
+For quick terminal access without a GUI:
+```bash
+npx mcp-cli build/index.js
+```
+You can then run commands like `list_products` or `generate_order_report` directly.
 
 ## 🛡️ Safety & Permissions
 This server implements a **read-only default** for sensitive operations. Any write operations (like updating order status) require explicit confirmation unless configured otherwise via the provided rule hooks.

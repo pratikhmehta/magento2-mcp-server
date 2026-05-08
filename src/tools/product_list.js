@@ -8,7 +8,9 @@ export const definition = {
     properties: {
       search: { type: "string", description: "Search term for product name" },
       category_id: { type: "string", description: "Filter by Category ID" },
-      limit: { type: "number", description: "Number of products to return (default 10)" }
+      limit: { type: "number", description: "Number of products to return (default 10)" },
+      sort_field: { type: "string", description: "Field to sort by (e.g. created_at, price, name)" },
+      sort_direction: { type: "string", description: "Sort direction (ASC or DESC)" }
     }
   }
 };

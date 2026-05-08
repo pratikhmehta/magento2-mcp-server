@@ -42,6 +42,23 @@ npm run smoke
 npm start
 ```
 
+## 💬 How to Use (Examples)
+
+Once the server is running and connected to your AI Agent (Cursor, Claude, etc.), you can simply ask questions in plain English. The AI will translate your request into Magento API calls.
+
+### 📦 Inventory & Stock
+- *"Check for any low stock items in the 'SHIRT' category."*
+- *"Show me the inventory levels for SKU 'BAG-001'."*
+- *"Alert me if any products have less than 5 units left."*
+
+### 🛒 Order Management
+- *"Give me the full details for order #211000000293."*
+- *"What are the last 5 pending orders?"*
+- *"Find all orders placed by customer govindbiswas079@gmail.com."*
+
+### 🤖 AI Customer Support
+- *"Ask the AI assistant: 'What is the return policy for my last order?' for customer email example@gmail.com."*
+
 ## 🔌 Integrating with AI Agents
 
 ### Cursor / Windsurf

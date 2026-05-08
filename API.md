@@ -16,6 +16,30 @@ Monitors and filters low-stock items across Magento inventory sources.
 
 ---
 
+## 📦 Product Tools
+
+### `get_product`
+Fetch detailed information for a specific product using its SKU.
+
+**Parameters:**
+- `sku` (string, required): The product SKU (Unique Identifier).
+
+**Example Usage:**
+> "Show me the price and description for SKU 'WSH12-M-Blue'."
+
+### `list_products`
+Search and list products from the Magento catalog.
+
+**Parameters:**
+- `search` (string, optional): Search term for product name.
+- `category_id` (string, optional): Filter by Category ID.
+- `limit` (number, optional): Number of products to return. Default is `10`.
+
+**Example Usage:**
+> "List all products in category 15 that have 'Yoga' in the name."
+
+---
+
 ## 🛒 Order Tools
 
 ### `get_order`

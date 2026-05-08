@@ -51,6 +51,11 @@ Once the server is running and connected to your AI Agent (Cursor, Claude, etc.)
 - *"Show me the inventory levels for SKU 'BAG-001'."*
 - *"Alert me if any products have less than 5 units left."*
 
+### 🏷️ Product Catalog
+- *"Show me the price and description for SKU 'WSH12-M-Blue'."*
+- *"List all products that have 'Yoga' in the name."*
+- *"Find the products in Category 15."*
+
 ### 🛒 Order Management
 - *"Give me the full details for order #211000000293."*
 - *"What are the last 5 pending orders?"*

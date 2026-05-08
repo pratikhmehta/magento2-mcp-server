@@ -5,13 +5,13 @@ import { OrderAutomationHandler } from '../handlers/order_automation_handler.js'
  */
 export const definition = {
   name: "get_order",
-  description: "Fetches detailed data for a specific Magento order by its Increment ID",
+  description: "Look up the full details and history for a specific order using its order number.",
   inputSchema: {
     type: "object",
     properties: {
       increment_id: { 
         type: "string", 
-        description: "The Magento Order Increment ID (e.g. '211000000293')" 
+        description: "The order number (e.g., '211000000293')." 
       }
     },
     required: ["increment_id"]

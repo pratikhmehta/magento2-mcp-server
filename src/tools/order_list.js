@@ -5,18 +5,18 @@ import { OrderAutomationHandler } from '../handlers/order_automation_handler.js'
  */
 export const definition = {
   name: "list_recent_orders",
-  description: "Fetches a list of recent orders from Magento with optional status filtering",
+  description: "Get a summary of the latest orders to see what needs attention (e.g., pending or complete).",
   inputSchema: {
     type: "object",
     properties: {
       status: { 
         type: "string", 
-        description: "Order status to filter by (e.g. 'pending', 'processing', 'complete')",
+        description: "The order status to look for (like 'pending' or 'complete').",
         default: "pending" 
       },
       limit: { 
         type: "number", 
-        description: "Number of orders to return",
+        description: "How many orders to show at once.",
         default: 5 
       }
     }

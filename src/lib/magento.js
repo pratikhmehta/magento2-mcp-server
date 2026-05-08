@@ -24,6 +24,12 @@ const client = axios.create({
   headers: {
     'Authorization': `Bearer ${config.MAGENTO_TOKEN.trim()}`,
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'User-Agent': 'Magento-MCP-Server/1.0.0'
+  },
+  // Prevent axios from encoding brackets in searchCriteria
+  paramsSerializer: {
+    encode: (param) => param // Disable encoding for searchCriteria compatibility
   }
 });
 
@@ -53,9 +59,15 @@ export const magento = {
    * NOTE: We remove the leading slash from 'path' to ensure it appends to baseURL correctly.
    */
   async get(path, params = {}) {
-    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    // Ensure the path is joined correctly to the baseURL
+    // We remove leading slashes and handle query parameters properly
+    let cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    
+    // If the path already contains query params, we don't pass 'params' separately to avoid conflicts
+    const config = cleanPath.includes('?') ? { headers: client.defaults.headers } : { params };
+    
     try {
-      const response = await client.get(cleanPath, { params });
+      const response = await client.get(cleanPath, config);
       return response.data;
     } catch (error) {
       handleRequestError(error);

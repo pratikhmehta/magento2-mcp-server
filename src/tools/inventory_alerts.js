@@ -9,18 +9,18 @@ const inventoryLimiter = createRateLimiter('inventory', { max_per_minute: 60 });
  */
 export const definition = {
   name: "check_inventory_alerts",
-  description: "Monitor and filter low-stock items across Magento inventory sources",
+  description: "Check for products that are running low on stock so you can reorder them.",
   inputSchema: {
     type: "object",
     properties: {
       threshold: { 
         type: "number", 
-        description: "Quantity threshold for low stock alert (default: 10)",
+        description: "Alert me if the quantity is below this number (defaults to 10).",
         default: 10
       },
       sku_filter: { 
         type: "string", 
-        description: "Optional glob pattern to filter by SKU (e.g. 'SHIRT-*')" 
+        description: "Optional: Only check products with certain IDs (e.g., 'SHIRT-*')." 
       }
     }
   }

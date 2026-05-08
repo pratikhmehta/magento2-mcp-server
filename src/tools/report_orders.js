@@ -2,17 +2,17 @@ import { ReportHandler } from '../handlers/report_handler.js';
 
 export const definition = {
   name: "generate_order_report",
-  description: "Generate a CSV report (compatible with Excel) of orders based on status and date range",
+  description: "Create a downloadable Excel-ready report of your orders to review offline.",
   inputSchema: {
     type: "object",
     properties: {
       status: { 
         type: "string", 
-        description: "Order status to include (e.g., 'pending', 'complete', 'processing')" 
+        description: "Which type of orders to include (e.g., 'pending' or 'complete')." 
       },
       days: { 
         type: "number", 
-        description: "Number of days to look back (default 30)" 
+        description: "How many days of history to include (defaults to 30 days)." 
       }
     }
   }

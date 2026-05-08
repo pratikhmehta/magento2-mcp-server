@@ -2,11 +2,11 @@ import { ProductHandler } from '../handlers/product_handler.js';
 
 export const definition = {
   name: "get_product",
-  description: "Fetch detailed information for a specific product using its SKU",
+  description: "Get all the details about a specific product using its product ID (SKU).",
   inputSchema: {
     type: "object",
     properties: {
-      sku: { type: "string", description: "The product SKU (Unique Identifier)" }
+      sku: { type: "string", description: "The unique product ID or SKU (e.g., 'WSH12-M-Blue')." }
     },
     required: ["sku"]
   }

@@ -10,16 +10,21 @@ export const OrderAutomationHandler = {
    */
   async listRecent(args) {
     const { status = 'pending', limit = 10 } = args;
-    const searchCriteria = `searchCriteria[filter_groups][0][filters][0][field]=status&` +
-                           `searchCriteria[filter_groups][0][filters][0][value]=${status}&` +
-                           `searchCriteria[pageSize]=${limit}`;
+    const params = {
+      'searchCriteria[filter_groups][0][filters][0][field]': 'status',
+      'searchCriteria[filter_groups][0][filters][0][value]': status,
+      'searchCriteria[pageSize]': limit
+    };
     
     try {
-      return await magento.get(`/orders?${searchCriteria}`);
+      return await magento.get('/orders', params);
     } catch (error) {
-      if (error.status === 404 && error.message.includes('store')) {
-        console.error('Store-scoped 404 detected, attempting /all/V1 fallback...');
-        return await magento.get(`../all/V1/orders?${searchCriteria}`);
+      // If we get a "store not found" error, it means we are likely hitting a scoped URL 
+      // that doesn't exist. We fallback to the /all/V1 path.
+      if (error.status === 404 && (error.message.includes('store') || error.message.includes('found'))) {
+        console.error('📡 Store-scoped 404 detected, attempting /all/V1 fallback...');
+        const allPath = config.MAGENTO_BASE_URL.includes('/all/') ? `/orders?${searchCriteria}` : `../all/V1/orders?${searchCriteria}`;
+        return await magento.get(allPath);
       }
       throw new Error(`Failed to list recent orders: ${error.message}`);
     }

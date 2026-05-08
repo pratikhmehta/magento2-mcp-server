@@ -15,8 +15,8 @@ We take the security of this project seriously. If you believe you have found a 
 
 Instead, please report it through one of the following channels:
 
-1.  **Email**: Send a detailed report to [pratik.mehta.neosoft+mcp@gmail.com](mailto:pratik.mehta.neosoft+mcp@gmail.com).
-2.  **Private Disclosure**: Use GitHub's [Private Vulnerability Reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-post-vulnerability-disclosure/about-reporting-a-vulnerability-to-a-repository-owner) feature if enabled.
+1.  **Private Disclosure**: Use GitHub's [Private Vulnerability Reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-post-vulnerability-disclosure/about-reporting-a-vulnerability-to-a-repository-owner) feature.
+2.  **Generic Contact**: Contact the repository owner directly through GitHub.
 
 ### What to include in your report:
 

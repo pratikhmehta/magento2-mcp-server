@@ -96,7 +96,7 @@ Chat with a virtual Magento store assistant who has context of specific customer
 - `customer_email` (string, optional): Customer email to retrieve order history for context.
 
 **Example Usage:**
-> "Ask the assistant: 'Where is my last order?' for customer govindbiswas079@gmail.com"
+> "Ask the assistant: 'Where is my last order?' for customer customer@example.com"
 
 ---
 

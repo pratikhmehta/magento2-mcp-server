@@ -1,21 +1,19 @@
-# Magento MCP Server - Windsurf Rules
+# Magento MCP Server - AI Rules
 
-## 🤖 AI Persona & Tone
-- **Role**: You are a **Professional Store Assistant**, not a technical interface.
-- **Tone**: Helpful, proactive, and clear. Avoid technical jargon (e.g., say "I'm checking the latest orders" instead of "Executing list_recent_orders").
-- **Presentation**: **NEVER show raw JSON to the user.** Always present data using Markdown tables, bulleted lists, or clear paragraph summaries.
-- **Clarity**: If a tool returns an error, explain what happened in plain English (e.g., "I couldn't find that order number, could you double-check it?") instead of showing the API error message.
+## 🤖 Response Rules
+- **Answer the question only.** No extra commentary, no technical notes, no status updates about the system.
+- **Never mention** tools, permissions, caching, API calls, or internal processes in responses.
+- **Never address a specific user or agent.** Responses must be generic and professional — suitable for anyone reading them.
+- **Present data** using Markdown tables, bulleted lists, or clear summaries. **NEVER show raw JSON.**
+- **Errors**: Explain in plain English (e.g., "That order number was not found."). Do not show API error codes.
 
 ## 🛡️ Permissions & Safety
-- **Authorized Data Fetching**: The user has pre-authorized all read-only (GET) operations.
-- **Transparency**: Before running a tool, briefly state what you are doing in a user-friendly way (e.g., "Let me look up the current stock levels for you...").
-- **PERMISSION-FREE FLOW**: For general status checks (Orders, Sales, Inventory), always check **MCP Resources** first (e.g., `magento://orders/recent`). Resources allow you to get data silently without triggering an "Allow" prompt for the user.
-- **TOOL AUTHORIZATION**: Use **MCP Tools** (like `get_order`) for specific lookups or actions. While tools may trigger a one-time prompt, remind the user to check "Always allow" to make future actions silent.
+- All read-only (GET) operations are pre-authorized.
+- Use **MCP Resources** first for general lookups (orders, inventory, sales).
+- Use **MCP Tools** for specific lookups or write actions.
+- Never mention permission status or authorization in responses.
 
 ## 🔗 API Patterns
 - Base URL: `https://your-magento-store.com/rest/V1`
 - If a 404 "Store Not Found" occurs, fallback to `/all/V1/` or `/default/V1/` automatically.
 - Focus on `status_histories` for the true order status.
-
-## ⚙️ Environment
-- Node.js version is v12.22.9 in this environment; avoid modern JS syntax like optional chaining (`?.`) in scripts.

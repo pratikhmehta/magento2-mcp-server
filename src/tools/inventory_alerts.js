@@ -21,6 +21,11 @@ export const definition = {
       sku_filter: { 
         type: "string", 
         description: "Optional: Only check products with certain IDs (e.g., 'SHIRT-*')." 
+      },
+      send_notification: {
+        type: "boolean",
+        description: "If true, sends an email/slack alert when low stock items are found.",
+        default: false
       }
     }
   }

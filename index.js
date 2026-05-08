@@ -12,7 +12,7 @@ async function bootstrap() {
     
     // Handle graceful shutdown
     const shutdown = async () => {
-      console.error("\n🛑 Shutting down Magento MCP Server...");
+      console.error("\n[STOP] Shutting down Magento MCP Server...");
       process.exit(0);
     };
 
@@ -20,7 +20,7 @@ async function bootstrap() {
     process.on('SIGTERM', shutdown);
 
   } catch (error) {
-    console.error("❌ Failed to start Magento MCP Server:", error.message);
+    console.error("[ERROR] Failed to start Magento MCP Server:", error.message);
     if (error.stack) {
       console.error(error.stack);
     }

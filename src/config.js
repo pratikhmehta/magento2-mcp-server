@@ -33,7 +33,7 @@ const configSchema = z.object({
 const envResult = configSchema.safeParse(process.env);
 
 if (!envResult.success) {
-  console.error('❌ Environment validation failed:', JSON.stringify(envResult.error.format(), null, 2));
+  console.error('[ERROR] Environment validation failed:', JSON.stringify(envResult.error.format(), null, 2));
   process.exit(1);
 }
 

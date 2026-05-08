@@ -4,6 +4,7 @@ import {
   ListToolsRequestSchema,
   CallToolRequestSchema,
   ListResourcesRequestSchema,
+  ListResourceTemplatesRequestSchema,
   ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { glob } from 'glob';
@@ -15,21 +16,19 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 /**
  * MCP Server Bootstrap
  * Automatically loads tools from src/tools/*.js
+ * Exposes Resources for permission-free data access
  */
 export class MCPServer {
   constructor() {
     this.server = new Server(
       {
         name: "magento2-mcp-server",
-        version: "1.0.0",
+        version: "1.1.0",
       },
       {
         capabilities: {
           tools: {},
-          resources: {
-            subscribe: true,
-            templates: true
-          },
+          resources: {},
         },
       }
     );
@@ -49,10 +48,11 @@ export class MCPServer {
         this.tools.set(toolModule.definition.name, toolModule);
       }
     }
+    console.error(`[TOOLS] Discovered ${this.tools.size} tools`);
   }
 
   /**
-   * Initializes MCP request handlers
+   * Initializes MCP Tool handlers
    */
   setupHandlers() {
     // Handler for listing tools
@@ -84,72 +84,57 @@ export class MCPServer {
   }
 
   /**
-   * Initializes MCP Resource handlers
+   * Initializes MCP Resource handlers for permission-free data access
    */
   setupResourceHandlers() {
-    // List available resources
+    // Single handler for listing all resources and templates
     this.server.setRequestHandler(ListResourcesRequestSchema, async () => ({
       resources: [
         {
           uri: "magento://orders/recent",
-          name: "Recent Orders Summary",
-          description: "A summary of the last 10 orders including status and totals.",
+          name: "Recent Orders",
+          description: "Latest 10 orders with status and totals.",
           mimeType: "application/json"
         },
         {
           uri: "magento://inventory/alerts",
-          name: "Low Stock Inventory",
-          description: "Current products that are running low on stock.",
+          name: "Low Stock Alerts",
+          description: "Products running low on stock.",
           mimeType: "application/json"
         },
         {
           uri: "magento://sales/monthly-summary",
-          name: "Monthly Sales Report",
+          name: "Monthly Sales",
           description: "Aggregated sales data for the current month.",
           mimeType: "application/json"
         }
       ]
     }));
 
-    // List available resource templates
-    this.server.setRequestHandler(ListResourcesRequestSchema, async () => ({
-      resources: [
-        {
-          uri: "magento://orders/recent",
-          name: "Recent Orders Summary",
-          description: "A summary of the last 10 orders including status and totals.",
-          mimeType: "application/json"
-        },
-        {
-          uri: "magento://inventory/alerts",
-          name: "Low Stock Inventory",
-          description: "Current products that are running low on stock.",
-          mimeType: "application/json"
-        },
-        {
-          uri: "magento://sales/monthly-summary",
-          name: "Monthly Sales Report",
-          description: "Aggregated sales data for the current month.",
-          mimeType: "application/json"
-        }
-      ],
-      resourceTemplates: [
-        {
-          uriTemplate: "magento://orders/{increment_id}",
-          name: "Order Details",
-          description: "Full details and history for a specific order number.",
-          mimeType: "application/json"
-        },
-        {
-          uriTemplate: "magento://products/{sku}",
-          name: "Product Details",
-          description: "Full catalog information for a specific product SKU.",
-          mimeType: "application/json"
-        }
-      ]
-    }));
+    // Resource templates for dynamic lookups
+    try {
+      this.server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => ({
+        resourceTemplates: [
+          {
+            uriTemplate: "magento://orders/{increment_id}",
+            name: "Order Details",
+            description: "Full details for a specific order number.",
+            mimeType: "application/json"
+          },
+          {
+            uriTemplate: "magento://products/{sku}",
+            name: "Product Details",
+            description: "Full catalog info for a specific product SKU.",
+            mimeType: "application/json"
+          }
+        ]
+      }));
+    } catch (e) {
+      // ListResourceTemplatesRequestSchema may not exist in older SDK versions
+      console.error('[WARNING] Resource templates not supported by SDK version, skipping.');
+    }
 
-    // Read a specific resource or template
+    // Read a specific resource
     this.server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
       const { uri } = request.params;
       
@@ -159,30 +144,27 @@ export class MCPServer {
 
       let data;
 
-      // Handle Templates (using simple regex/string matching for demo)
-      if (uri.startsWith("magento://orders/")) {
+      // Static resources first (exact match)
+      if (uri === "magento://orders/recent") {
+        data = await OrderAutomationHandler.listRecent({ limit: 10 });
+      }
+      else if (uri === "magento://inventory/alerts") {
+        data = await InventoryAlertHandler.checkAlerts({ threshold: 10 });
+      }
+      else if (uri === "magento://sales/monthly-summary") {
+        data = await OrderAutomationHandler.getMonthlySummary();
+      }
+      // Dynamic templates (prefix match)
+      else if (uri.startsWith("magento://orders/")) {
         const increment_id = uri.replace("magento://orders/", "");
         data = await OrderAutomationHandler.getByIncrementId({ increment_id });
-      } 
+      }
       else if (uri.startsWith("magento://products/")) {
         const sku = uri.replace("magento://products/", "");
-        data = await ProductHandler.get({ sku });
+        data = await ProductHandler.getBySku({ sku });
       }
       else {
-        switch (uri) {
-          case "magento://orders/recent":
-            data = await OrderAutomationHandler.listRecent({ limit: 10 });
-            break;
-          case "magento://inventory/alerts":
-            data = await InventoryAlertHandler.checkAlerts({ threshold: 10 });
-            break;
-          case "magento://sales/monthly-summary":
-            const orders = await OrderAutomationHandler.listRecent({ limit: 100 }); 
-            data = { total_orders: orders.total_count || 0, status: "active" };
-            break;
-          default:
-            throw new Error(`Resource not found: ${uri}`);
-        }
+        throw new Error(`Resource not found: ${uri}`);
       }
 
       return {
@@ -205,6 +187,6 @@ export class MCPServer {
     
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error("🚀 Magento MCP Server running on stdio");
+    console.error("SUCCESS: Magento MCP Server v1.1.0 running on stdio");
   }
 }

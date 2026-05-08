@@ -5,14 +5,16 @@ import { config } from '../config.js';
 
 /**
  * Magento 2 REST API Client
- * Optimized for DDEV and Standard Magento paths
+ * - Retry logic (3 retries with exponential backoff)
+ * - TLS flexibility for dev environments
+ * - Bracket-safe params serialization
  */
 
 const httpsAgent = new https.Agent({
   rejectUnauthorized: config.NODE_ENV !== 'development'
 });
 
-// Ensure baseURL ends with a slash and doesn't have double slashes
+// Ensure baseURL ends with a slash
 const rawBaseUrl = config.MAGENTO_BASE_URL.endsWith('/') 
   ? config.MAGENTO_BASE_URL 
   : `${config.MAGENTO_BASE_URL}/`;
@@ -25,11 +27,11 @@ const client = axios.create({
     'Authorization': `Bearer ${config.MAGENTO_TOKEN.trim()}`,
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    'User-Agent': 'Magento-MCP-Server/1.0.0'
+    'User-Agent': 'Magento-MCP-Server/1.1.0'
   },
   // Prevent axios from encoding brackets in searchCriteria
   paramsSerializer: {
-    encode: (param) => param // Disable encoding for searchCriteria compatibility
+    encode: (param) => param
   }
 });
 
@@ -56,18 +58,16 @@ const handleRequestError = (error) => {
 export const magento = {
   /**
    * Performs a GET request.
-   * NOTE: We remove the leading slash from 'path' to ensure it appends to baseURL correctly.
+   * Handles both path-with-query and params-object patterns.
    */
   async get(path, params = {}) {
-    // Ensure the path is joined correctly to the baseURL
-    // We remove leading slashes and handle query parameters properly
     let cleanPath = path.startsWith('/') ? path.substring(1) : path;
     
-    // If the path already contains query params, we don't pass 'params' separately to avoid conflicts
-    const config = cleanPath.includes('?') ? { headers: client.defaults.headers } : { params };
+    // If the path already contains query params, don't pass params separately
+    const requestConfig = cleanPath.includes('?') ? {} : { params };
     
     try {
-      const response = await client.get(cleanPath, config);
+      const response = await client.get(cleanPath, requestConfig);
       return response.data;
     } catch (error) {
       handleRequestError(error);

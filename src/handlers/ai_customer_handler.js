@@ -1,14 +1,25 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { magento } from '../lib/magento.js';
-import { config } from '../config.js';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { magento } from "../lib/magento.js";
+import { config } from "../config.js";
 
 /**
  * AI Customer Service Logic - Gemini Powered
  */
 
-// In-memory conversation store (session_id -> array of messages)
+// In-memory conversation store (session_id -> { history, lastAccessed })
 const sessionHistory = new Map();
 const MAX_HISTORY = 10;
+
+// Clear inactive chat sessions after 1 hour to prevent memory leaks
+const cleanupInterval = setInterval(() => {
+  const oneHourAgo = Date.now() - 3600000;
+  for (const [key, data] of sessionHistory.entries()) {
+    if (data.lastAccessed < oneHourAgo) {
+      sessionHistory.delete(key);
+    }
+  }
+}, 300000); // Check every 5 minutes
+if (cleanupInterval.unref) cleanupInterval.unref();
 
 const genAI = new GoogleGenerativeAI(config.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
@@ -21,29 +32,42 @@ export const AICustomerHandler = {
     const { session_id, message, customer_email } = args;
 
     // 1. Get or initialize history
-    let history = sessionHistory.get(session_id) || [];
+    let sessionData = sessionHistory.get(session_id) || {
+      history: [],
+      lastAccessed: Date.now(),
+    };
+    let history = sessionData.history;
+    sessionData.lastAccessed = Date.now();
 
     // 2. Fetch context if email is provided
-    let orderContext = "No customer email provided, so no order history is available.";
+    let orderContext =
+      "No customer email provided, so no order history is available.";
     if (customer_email) {
-      const searchCriteria = `searchCriteria[filter_groups][0][filters][0][field]=customer_email&` +
-                             `searchCriteria[filter_groups][0][filters][0][value]=${customer_email}&` +
-                             `searchCriteria[pageSize]=5&` +
-                             `searchCriteria[sortOrders][0][field]=created_at&` +
-                             `searchCriteria[sortOrders][0][direction]=DESC`;
-      
+      const searchCriteria =
+        `searchCriteria[filter_groups][0][filters][0][field]=customer_email&` +
+        `searchCriteria[filter_groups][0][filters][0][value]=${customer_email}&` +
+        `searchCriteria[pageSize]=5&` +
+        `searchCriteria[sortOrders][0][field]=created_at&` +
+        `searchCriteria[sortOrders][0][direction]=DESC`;
+
       try {
         const response = await magento.get(`/orders?${searchCriteria}`);
         const orders = response.items || [];
         if (orders.length > 0) {
-          orderContext = orders.map(o => 
-            `- Order #${o.increment_id}: Status ${o.status}, Total ${o.grand_total} ${o.order_currency_code}, Date ${o.created_at}`
-          ).join('\n');
+          orderContext = orders
+            .map(
+              (o) =>
+                `- Order #${o.increment_id}: Status ${o.status}, Total ${o.grand_total} ${o.order_currency_code}, Date ${o.created_at}`,
+            )
+            .join("\n");
         } else {
           orderContext = "No orders found for this customer.";
         }
       } catch (error) {
-        console.error('Failed to fetch order history for AI context:', error.message);
+        console.error(
+          "Failed to fetch order history for AI context:",
+          error.message,
+        );
         orderContext = "Error retrieving order history.";
       }
     }
@@ -53,7 +77,7 @@ export const AICustomerHandler = {
 Your goal is to help customers with their inquiries using the provided order history.
 Always respond in the customer's detected language.
 
-Customer Context (${customer_email || 'Guest'}):
+Customer Context (${customer_email || "Guest"}):
 ${orderContext}
 
 If the customer is frustrated, asks for a human, or their issue cannot be resolved through information alone, include the instruction "ESCALATE: TRUE" at the end of your response.`;
@@ -62,39 +86,39 @@ If the customer is frustrated, asks for a human, or their issue cannot be resolv
     try {
       // Correct format for Gemini system instruction
       const chat = model.startChat({
-        history: history.map(h => ({
-          role: h.role === 'assistant' ? 'model' : 'user',
+        history: history.map((h) => ({
+          role: h.role === "assistant" ? "model" : "user",
           parts: [{ text: h.content }],
         })),
         systemInstruction: {
-          parts: [{ text: systemPrompt }]
-        }
+          parts: [{ text: systemPrompt }],
+        },
       });
 
       const result = await chat.sendMessage(message);
       const replyText = result.response.text();
-      
-      const escalate = replyText.includes('ESCALATE: TRUE');
-      const cleanReply = replyText.replace('ESCALATE: TRUE', '').trim();
+
+      const escalate = replyText.includes("ESCALATE: TRUE");
+      const cleanReply = replyText.replace("ESCALATE: TRUE", "").trim();
 
       // 5. Update history
-      history.push({ role: 'user', content: message });
-      history.push({ role: 'assistant', content: cleanReply });
-      
+      history.push({ role: "user", content: message });
+      history.push({ role: "assistant", content: cleanReply });
+
       // Keep only last N turns
       if (history.length > MAX_HISTORY * 2) {
         history = history.slice(-MAX_HISTORY * 2);
       }
-      sessionHistory.set(session_id, history);
+      sessionHistory.set(session_id, { history, lastAccessed: Date.now() });
 
       return {
         reply: cleanReply,
         session_id,
-        escalate
+        escalate,
       };
     } catch (error) {
-      console.error('Gemini API error:', error.message);
+      console.error("Gemini API error:", error.message);
       throw new Error(`AI Chat processing failed: ${error.message}`);
     }
-  }
+  },
 };

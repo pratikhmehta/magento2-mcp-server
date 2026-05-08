@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "magento-mcp": {
+      "command": "node",
+      "args": [
+        "./index.js"
+      ],
+      "env": {
+        "MAGENTO_BASE_URL": "https://your-store.com/rest/V1",
+        "MAGENTO_TOKEN": "your-access-token",
+        "GEMINI_API_KEY": "your-gemini-key",
+        "ALERT_EMAIL": "admin@example.com",
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}

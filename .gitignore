@@ -34,4 +34,4 @@ test-results/
 dist/
 build/
 
-.env
+.envreports/*.csv

@@ -71,6 +71,20 @@ Automates order lifecycle transitions (paid, shipped, cancelled).
 
 ---
 
+## 📊 Reporting Tools
+
+### `generate_order_report`
+Generate a CSV report (compatible with Excel) of orders based on status and date range.
+
+**Parameters:**
+- `status` (string, optional): Order status to include (e.g., `pending`, `complete`).
+- `days` (number, optional): Number of days to look back. Default is `30`.
+
+**Example Usage:**
+> "Generate an Excel report of all completed orders from the last 7 days."
+
+---
+
 ## 🤖 AI & Customer Service
 
 ### `customer_chat`

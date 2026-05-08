@@ -56,6 +56,10 @@ Once the server is running and connected to your AI Agent (Cursor, Claude, etc.)
 - *"List all products that have 'Yoga' in the name."*
 - *"Find the products in Category 15."*
 
+### 📊 Business Reporting
+- *"Generate an Excel report of all completed orders from the last 7 days."*
+- *"Create a CSV of all pending orders for this month."*
+
 ### 🛒 Order Management
 - *"Give me the full details for order #211000000293."*
 - *"What are the last 5 pending orders?"*

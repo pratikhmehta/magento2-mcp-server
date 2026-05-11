@@ -45,7 +45,17 @@ export class MCPServer {
     for (const file of toolFiles) {
       const toolModule = await import(`file://${file}`);
       if (toolModule.definition && toolModule.handler) {
-        this.tools.set(toolModule.definition.name, toolModule);
+        // Support both single definition and array of definitions
+        const definitions = Array.isArray(toolModule.definition) 
+          ? toolModule.definition 
+          : [toolModule.definition];
+        
+        for (const def of definitions) {
+          this.tools.set(def.name, {
+            definition: def,
+            handler: toolModule.handler
+          });
+        }
       }
     }
     console.error(`[TOOLS] Discovered ${this.tools.size} tools`);
@@ -70,7 +80,8 @@ export class MCPServer {
       }
 
       try {
-        const result = await tool.handler(args);
+        // Pass tool name as second argument to support multi-tool files
+        const result = await tool.handler(args, name);
         return {
           content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
         };
@@ -107,6 +118,18 @@ export class MCPServer {
           name: "Monthly Sales",
           description: "Aggregated sales data for the current month.",
           mimeType: "application/json"
+        },
+        {
+          uri: "magento://store/list",
+          name: "Store Views & Websites",
+          description: "List of all websites, groups, and store views.",
+          mimeType: "application/json"
+        },
+        {
+          uri: "magento://store/configs",
+          name: "Store Configuration",
+          description: "General settings like currency, locale, and store names.",
+          mimeType: "application/json"
         }
       ]
     }));
@@ -126,6 +149,12 @@ export class MCPServer {
             name: "Product Details",
             description: "Full catalog info for a specific product SKU.",
             mimeType: "application/json"
+          },
+          {
+            uriTemplate: "magento://inventory/sources/{sku}",
+            name: "Product Stock per Source",
+            description: "Multi-Source Inventory (MSI) levels for a specific SKU across all stores.",
+            mimeType: "application/json"
           }
         ]
       }));
@@ -141,6 +170,7 @@ export class MCPServer {
       const { OrderAutomationHandler } = await import('../handlers/order_automation_handler.js');
       const { InventoryAlertHandler } = await import('../handlers/inventory_alerts_handler.js');
       const { ProductHandler } = await import('../handlers/product_handler.js');
+      const { InventoryHandler } = await import('../handlers/inventory_handler.js');
 
       let data;
 
@@ -162,6 +192,18 @@ export class MCPServer {
       else if (uri.startsWith("magento://products/")) {
         const sku = uri.replace("magento://products/", "");
         data = await ProductHandler.getBySku({ sku });
+      }
+      else if (uri === "magento://store/list") {
+        const { StoreHandler } = await import('../handlers/store_handler.js');
+        data = await StoreHandler.listStores();
+      }
+      else if (uri === "magento://store/configs") {
+        const { StoreHandler } = await import('../handlers/store_handler.js');
+        data = await StoreHandler.getStoreConfigs();
+      }
+      else if (uri.startsWith("magento://inventory/sources/")) {
+        const sku = uri.replace("magento://inventory/sources/", "");
+        data = await InventoryHandler.getStockPerSource({ sku });
       }
       else {
         throw new Error(`Resource not found: ${uri}`);

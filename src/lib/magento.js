@@ -58,13 +58,17 @@ const handleRequestError = (error) => {
 export const magento = {
   /**
    * Performs a GET request.
-   * Handles both path-with-query and params-object patterns.
+   * @param {string} path 
+   * @param {Object} params 
+   * @param {string} storeCode - Optional Magento Store View code
    */
-  async get(path, params = {}) {
+  async get(path, params = {}, storeCode = null) {
     let cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    const requestConfig = cleanPath.includes('?') ? { headers: {} } : { params, headers: {} };
     
-    // If the path already contains query params, don't pass params separately
-    const requestConfig = cleanPath.includes('?') ? {} : { params };
+    if (storeCode) {
+      requestConfig.headers['X-Magento-Store-View'] = storeCode;
+    }
     
     try {
       const response = await client.get(cleanPath, requestConfig);
@@ -74,20 +78,28 @@ export const magento = {
     }
   },
 
-  async post(path, body = {}) {
+  async post(path, body = {}, storeCode = null) {
     const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    const requestConfig = { headers: {} };
+    if (storeCode) {
+      requestConfig.headers['X-Magento-Store-View'] = storeCode;
+    }
     try {
-      const response = await client.post(cleanPath, body);
+      const response = await client.post(cleanPath, body, requestConfig);
       return response.data;
     } catch (error) {
       handleRequestError(error);
     }
   },
 
-  async put(path, body = {}) {
+  async put(path, body = {}, storeCode = null) {
     const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    const requestConfig = { headers: {} };
+    if (storeCode) {
+      requestConfig.headers['X-Magento-Store-View'] = storeCode;
+    }
     try {
-      const response = await client.put(cleanPath, body);
+      const response = await client.put(cleanPath, body, requestConfig);
       return response.data;
     } catch (error) {
       handleRequestError(error);

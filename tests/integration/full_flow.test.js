@@ -98,11 +98,17 @@ describe('Full Flow Integration Tests', () => {
           ],
         });
 
-      // 2. Mock Anthropic API (via nock)
-      nock('https://api.anthropic.com')
-        .post('/v1/messages')
+      // 2. Mock Google Gemini API (via nock)
+      nock('https://generativelanguage.googleapis.com')
+        .post(/\/v1beta\/models\/gemini-1.5-flash-latest:generateContent.*/)
         .reply(200, {
-          content: [{ type: 'text', text: 'Your order #100001 has been shipped!' }]
+          candidates: [
+            {
+              content: {
+                parts: [{ text: 'Your order #100001 has been shipped!' }]
+              }
+            }
+          ]
         });
 
       // 3. Run Chat Handler

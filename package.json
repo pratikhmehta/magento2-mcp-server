@@ -22,8 +22,8 @@
   "scripts": {
     "start": "node index.js",
     "smoke": "node scripts/smoke_test.js",
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "scan:secrets": "npx --yes @secretlint/quick-start \"**/*\"",
     "scan:deps": "npm audit --audit-level=high"
   },

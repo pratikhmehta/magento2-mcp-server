@@ -1,6 +1,6 @@
 # Magento 2 MCP Server
 
-[![CI Build](https://github.com/pratikhmehta/magento2-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/pratikhmehta/magento2-mcp-server/actions)
+[![CI Build](https://github.com/pratikhmehta/magento2-mcp-server/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/pratikhmehta/magento2-mcp-server/actions)
 
 A production-ready **Model Context Protocol (MCP)** server that connects AI Agents (Cursor, Windsurf, Claude, etc.) directly to your Magento 2 store. Empower your AI assistant to manage inventory, check orders, and provide context-aware customer support.
 

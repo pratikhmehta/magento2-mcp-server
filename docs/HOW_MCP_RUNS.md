@@ -272,11 +272,10 @@ Imagine Magento sends the same `order_paid` event twice due to a network hiccup.
 
 ### Key files involved
 
-| File                                       | Role                                                       |
-| ------------------------------------------ | ---------------------------------------------------------- |
-| `src/handlers/order_automation_handler.js` | Core rules engine and event processing logic               |
-| `src/handlers/order_writer.js`             | Writes changes back to Magento (status, shipment, restock) |
-| `src/lib/magento.js`                       | HTTP calls to Magento REST API                             |
+| File                                       | Role                                         |
+| ------------------------------------------ | -------------------------------------------- |
+| `src/handlers/order_automation_handler.js` | Core rules engine and event processing logic |
+| `src/lib/magento.js`                       | HTTP calls to Magento REST API               |
 
 ---
 

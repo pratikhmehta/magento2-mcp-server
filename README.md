@@ -98,7 +98,7 @@ The easiest way to get a visual interface for managing your store without using 
 1. Install dependencies: `npm install`
 2. Start the interactive dashboard:
    ```bash
-   npx @modelcontextprotocol/inspector build/index.js
+   npx @modelcontextprotocol/inspector node index.js
    ```
 3. Open the provided link (usually `http://localhost:3000`) in your browser to see a professional UI for all tools.
 
@@ -117,7 +117,7 @@ Add this to your `claude_desktop_config.json`:
   "mcpServers": {
     "magento-mcp": {
       "command": "node",
-      "args": ["/absolute/path/to/magento2-mcp-server/build/index.js"],
+      "args": ["/absolute/path/to/magento2-mcp-server/index.js"],
       "env": {
         "MAGENTO_BASE_URL": "https://your-store.com/rest/V1",
         "MAGENTO_TOKEN": "your-access-token",
@@ -133,7 +133,7 @@ Add this to your `claude_desktop_config.json`:
 For quick terminal access without a GUI:
 
 ```bash
-npx mcp-cli build/index.js
+npx mcp-cli index.js
 ```
 
 You can then run commands like `list_products` or `generate_order_report` directly.

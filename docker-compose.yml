@@ -6,8 +6,8 @@ services:
     env_file:
       - .env
     healthcheck:
-      # Simple check to see if the process is running
-      test: ["CMD", "node", "-e", "require('./src/lib/mcp.js')"]
+      # Pings the HTTP health endpoint. If the Node event loop hangs, this times out.
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3001/health"]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -18,6 +18,10 @@ export const definition = {
         type: "number", 
         description: "How many orders to show at once.",
         default: 5 
+      },
+      store_code: { 
+        type: "string", 
+        description: "Optional store view code for localized data." 
       }
     }
   }

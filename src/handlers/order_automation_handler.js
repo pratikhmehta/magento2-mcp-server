@@ -18,13 +18,13 @@ export const OrderAutomationHandler = {
    * List recent orders (cached)
    */
   async listRecent(args) {
-    const { status = "pending", limit = 10 } = args;
-    const cacheKey = `orders:list:${status}:${limit}`;
+    const { status = "pending", limit = 10, store_code = null } = args;
+    const cacheKey = `orders:list:${status}:${limit}:${store_code || 'all'}`;
 
     // Check cache first
     const cached = cacheGet(cacheKey);
     if (cached) {
-      console.error("[CACHE] Returning cached order list");
+      console.error(`[CACHE] Returning cached order list (${store_code || 'all'})`);
       return cached;
     }
 
@@ -36,7 +36,7 @@ export const OrderAutomationHandler = {
       `searchCriteria[sortOrders][0][direction]=DESC`;
 
     try {
-      const data = await magento.get(`/orders?${searchCriteria}`);
+      const data = await magento.get(`/orders?${searchCriteria}`, {}, store_code);
       cacheSet(cacheKey, data, TTL.orders);
       return data;
     } catch (error) {
@@ -109,12 +109,12 @@ export const OrderAutomationHandler = {
    * Get order by increment ID (cached)
    */
   async getByIncrementId(args) {
-    const { increment_id } = args;
-    const cacheKey = `orders:get:${increment_id}`;
+    const { increment_id, store_code = null } = args;
+    const cacheKey = `orders:get:${increment_id}:${store_code || 'all'}`;
 
     const cached = cacheGet(cacheKey);
     if (cached) {
-      console.error(`[CACHE] Returning cached order #${increment_id}`);
+      console.error(`[CACHE] Returning cached order #${increment_id} (${store_code || 'all'})`);
       return cached;
     }
 
@@ -123,7 +123,7 @@ export const OrderAutomationHandler = {
       `searchCriteria[filter_groups][0][filters][0][value]=${encodeURIComponent(increment_id)}`;
 
     try {
-      const response = await magento.get(`/orders?${searchCriteria}`);
+      const response = await magento.get(`/orders?${searchCriteria}`, {}, store_code);
       if (!response.items || response.items.length === 0) {
         throw new Error(`Order #${increment_id} not found.`);
       }

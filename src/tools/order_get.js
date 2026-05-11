@@ -12,6 +12,10 @@ export const definition = {
       increment_id: { 
         type: "string", 
         description: "The order number (e.g., '211000000293')." 
+      },
+      store_code: { 
+        type: "string", 
+        description: "Optional store view code for localized data." 
       }
     },
     required: ["increment_id"]

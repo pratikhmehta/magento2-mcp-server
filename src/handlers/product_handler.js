@@ -12,17 +12,17 @@ export const ProductHandler = {
    * Get product details by SKU (cached)
    */
   async getBySku(args) {
-    const { sku } = args;
-    const cacheKey = `products:get:${sku}`;
+    const { sku, store_code = null } = args;
+    const cacheKey = `products:get:${sku}:${store_code || 'all'}`;
 
     const cached = cacheGet(cacheKey);
     if (cached) {
-      console.error(`[CACHE] Returning cached product ${sku}`);
+      console.error(`[CACHE] Returning cached product ${sku} (${store_code || 'all'})`);
       return cached;
     }
 
     try {
-      const data = await magento.get(`/products/${encodeURIComponent(sku)}`);
+      const data = await magento.get(`/products/${encodeURIComponent(sku)}`, {}, store_code);
       cacheSet(cacheKey, data, TTL.products);
       return data;
     } catch (error) {
@@ -37,12 +37,12 @@ export const ProductHandler = {
    * List products with filtering and sorting (cached)
    */
   async list(args) {
-    const { category_id, limit = 10, search = '', sort_field = 'created_at', sort_direction = 'DESC' } = args;
-    const cacheKey = `products:list:${category_id || 'all'}:${search}:${limit}:${sort_field}:${sort_direction}`;
+    const { category_id, limit = 10, search = '', sort_field = 'created_at', sort_direction = 'DESC', store_code = null } = args;
+    const cacheKey = `products:list:${category_id || 'all'}:${search}:${limit}:${sort_field}:${sort_direction}:${store_code || 'all'}`;
 
     const cached = cacheGet(cacheKey);
     if (cached) {
-      console.error('[CACHE] Returning cached product list');
+      console.error(`[CACHE] Returning cached product list (${store_code || 'all'})`);
       return cached;
     }
 
@@ -68,7 +68,7 @@ export const ProductHandler = {
                         `searchCriteria[sortOrders][0][direction]=${sort_direction}`;
     
     try {
-      const data = await magento.get(`/products?${searchCriteria}`);
+      const data = await magento.get(`/products?${searchCriteria}`, {}, store_code);
       cacheSet(cacheKey, data, TTL.products);
       return data;
     } catch (error) {

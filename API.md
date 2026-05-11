@@ -11,8 +11,31 @@ Monitors and filters low-stock items across Magento inventory sources.
 - `sku_filter` (string, optional): A glob pattern to filter by SKU (e.g. `SHIRT-*`).
 - `threshold` (number, optional): Quantity threshold for low stock alerts. Default is `10`.
 
-**Example Usage:**
-> "Check for any items with the SKU 'BAG-*' that have less than 5 units in stock."
+### `get_product_stock_per_source`
+Retrieves exact stock levels for a product across all physical warehouses/sources (MSI).
+
+**Parameters:**
+- `sku` (string, required): Product SKU.
+
+### `list_inventory_sources`
+Lists all physical warehouses and stores configured in Magento.
+
+---
+
+## 🌍 Store & Localization Tools
+
+### `list_store_views`
+Lists all websites, store groups, and language views in the system.
+
+### `get_store_configs`
+Retrieves global settings like currency, locale, and base URLs.
+
+### `get_localized_product`
+Fetches product details specifically translated for a chosen store view.
+
+**Parameters:**
+- `sku` (string, required): Product SKU.
+- `store_code` (string, required): Magento store view code (e.g., `default`, `en_us`, `mn_mn`).
 
 ---
 
@@ -23,9 +46,10 @@ Fetch detailed information for a specific product using its SKU.
 
 **Parameters:**
 - `sku` (string, required): The product SKU (Unique Identifier).
+- `store_code` (string, optional): Store view code for localized data.
 
 **Example Usage:**
-> "Show me the price and description for SKU 'WSH12-M-Blue'."
+> "Show me the price and description for SKU 'WSH12-M-Blue' in the French store view."
 
 ### `list_products`
 Search and list products from the Magento catalog.
@@ -34,6 +58,7 @@ Search and list products from the Magento catalog.
 - `search` (string, optional): Search term for product name.
 - `category_id` (string, optional): Filter by Category ID.
 - `limit` (number, optional): Number of products to return. Default is `10`.
+- `store_code` (string, optional): Store view code for localized results.
 
 **Example Usage:**
 > "List all products in category 15 that have 'Yoga' in the name."
@@ -47,6 +72,7 @@ Fetches detailed data for a specific Magento order by its Increment ID.
 
 **Parameters:**
 - `increment_id` (string, required): The Magento Order Increment ID (e.g. `211000000293`).
+- `store_code` (string, optional): Store view code for localized data.
 
 **Example Usage:**
 > "Give me the full details for order #211000000293."
@@ -57,6 +83,7 @@ Fetches a list of recent orders from Magento with optional status filtering.
 **Parameters:**
 - `status` (string, optional): Filter by order status (e.g., `pending`, `processing`, `complete`, `closed`).
 - `limit` (number, optional): Number of orders to return. Default is `10`.
+- `store_code` (string, optional): Store view code for localized results.
 
 **Example Usage:**
 > "Show me the last 5 pending orders."

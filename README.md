@@ -4,9 +4,9 @@ A production-ready **Model Context Protocol (MCP)** server that connects AI Agen
 
 ## 🚀 Key Features
 
-- **📦 Inventory Management**: Monitor stock levels with SKU glob filtering and low-stock alerts.
-- **🛒 Order Intelligence**: Fetch detailed order data by ID, list recent orders, and track status history.
-- **🤖 AI Customer Service**: Integrated handler for LLM-powered customer chat with full Magento order context.
+- **📦 Inventory Management**: Monitor stock levels across all **Multi-Source Inventory (MSI)** locations with warehouse-specific tracking.
+- **🌍 Multi-Store & Localization**: Fetch product data, prices, and configurations translated for any specific store view (language).
+- **🛒 Order Intelligence**: Fetch detailed order data by ID, list recent orders, and track status history with store-specific headers.
 - **⚡ Order Automation**: Handle lifecycle events (Paid, Shipped, Cancelled) with automated status transitions.
 - **🛡️ Production Ready**: Includes rate limiting, resilient retries (503 handling), strict Zod input validation, and background memory garbage collection.
 - **📜 Audit Trail**: All automated actions are securely logged to a structured JSON file (`automated-actions.log`) with PII sanitized.
@@ -57,8 +57,14 @@ Once the server is running and connected to your AI Agent (Cursor, Claude, etc.)
 ### 📦 Inventory & Stock
 
 - _"Check for any low stock items in the 'SHIRT' category."_
-- _"Show me the inventory levels for SKU 'BAG-001'."_
+- _"Show me the inventory levels for SKU 'BAG-001' across all warehouses."_
 - _"Alert me if any products have less than 5 units left."_
+
+### 🌍 Multi-Store & Languages
+
+- _"Get the Mongolian description for SKU '481022-MASH' from store 'mn_mn'."_
+- _"List all store views and their associated websites."_
+- _"What is the base currency for the European store view?"_
 
 ### 🏷️ Product Catalog
 

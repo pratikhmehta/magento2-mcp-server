@@ -6,7 +6,8 @@ export const definition = {
   inputSchema: {
     type: "object",
     properties: {
-      sku: { type: "string", description: "The unique product ID or SKU (e.g., 'WSH12-M-Blue')." }
+      sku: { type: "string", description: "The unique product ID or SKU (e.g., 'WSH12-M-Blue')." },
+      store_code: { type: "string", description: "Optional store view code for localized data." }
     },
     required: ["sku"]
   }

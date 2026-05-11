@@ -1,5 +1,7 @@
 # Magento 2 MCP Server
 
+[![CI Build](https://github.com/pratikhmehta/magento2-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/pratikhmehta/magento2-mcp-server/actions)
+
 A production-ready **Model Context Protocol (MCP)** server that connects AI Agents (Cursor, Windsurf, Claude, etc.) directly to your Magento 2 store. Empower your AI assistant to manage inventory, check orders, and provide context-aware customer support.
 
 ## 🚀 Key Features
@@ -150,6 +152,20 @@ If you want to run the MCP server as a 24/7 background service on a remote VPS a
 3. You can monitor live logs using `npx pm2 logs magento2-mcp-server`.
 
 _Note: AI Clients must support SSE to connect via this method. For remote Claude/Cursor connections, using Stdio over SSH is recommended._
+
+### Option 5: Docker Deployment 🐳
+
+For a fully isolated, production-ready background environment that automatically restarts on failure:
+
+1. Build and start the container in detached mode:
+   ```bash
+   docker compose up -d
+   ```
+2. The container is optimized for low memory environments and features an auto-healing health check on port `3001`.
+3. To view the live logs:
+   ```bash
+   docker compose logs -f
+   ```
 
 ## 🛡️ Safety & Permissions
 

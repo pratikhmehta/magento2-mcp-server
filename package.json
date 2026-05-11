@@ -4,7 +4,7 @@
   "description": "A production-ready Model Context Protocol (MCP) server for Magento 2 integration with AI Agents",
   "type": "module",
   "main": "index.js",
-  "author": "Magento MCP Server Contributors",
+  "author": "Pratik Mehta <pratik.social.media@gmail.com>",
   "license": "MIT",
   "keywords": [
     "mcp",

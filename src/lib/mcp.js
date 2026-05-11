@@ -130,6 +130,12 @@ export class MCPServer {
           name: "Store Configuration",
           description: "General settings like currency, locale, and store names.",
           mimeType: "application/json"
+        },
+        {
+          uri: "magento://categories/tree",
+          name: "Category Tree",
+          description: "Full hierarchical tree of product categories.",
+          mimeType: "application/json"
         }
       ]
     }));
@@ -204,6 +210,10 @@ export class MCPServer {
       else if (uri.startsWith("magento://inventory/sources/")) {
         const sku = uri.replace("magento://inventory/sources/", "");
         data = await InventoryHandler.getStockPerSource({ sku });
+      }
+      else if (uri === "magento://categories/tree") {
+        const { StoreHandler } = await import('../handlers/store_handler.js');
+        data = await StoreHandler.listCategories();
       }
       else {
         throw new Error(`Resource not found: ${uri}`);

@@ -10,6 +10,7 @@ A production-ready **Model Context Protocol (MCP)** server that connects AI Agen
 - **🌍 Multi-Store & Localization**: Fetch product data, prices, and configurations translated for any specific store view (language).
 - **🛒 Order Intelligence**: Fetch detailed order data by ID, list recent orders, and track status history with store-specific headers.
 - **⚡ Order Automation**: Handle lifecycle events (Paid, Shipped, Cancelled) with automated status transitions.
+- **📂 Catalog Browsing**: Traverse the entire Magento category tree and browse products by category ID.
 - **🛡️ Production Ready**: Includes rate limiting, resilient retries (503 handling), strict Zod input validation, and background memory garbage collection.
 - **📜 Audit Trail**: All automated actions are securely logged to a structured JSON file (`automated-actions.log`) with PII sanitized.
 - **🌐 Agent Friendly**: Pre-configured with `.cursorrules` and `.windsurfrules` for zero-friction integration with AI IDEs.
@@ -73,6 +74,8 @@ Once the server is running and connected to your AI Agent (Cursor, Claude, etc.)
 - _"Show me the price and description for SKU 'WSH12-M-Blue'."_
 - _"List all products that have 'Yoga' in the name."_
 - _"Find the products in Category 15."_
+- _"Show me the full category tree of the store."_
+- _"What are the sub-categories of 'Household Goods'?"_
 
 ### 📊 Business Reporting
 

@@ -63,6 +63,12 @@ Search and list products from the Magento catalog.
 **Example Usage:**
 > "List all products in category 15 that have 'Yoga' in the name."
 
+### `list_categories`
+Retrieves the full Magento category tree. Useful for browsing the store structure and finding Category IDs.
+
+**Example Usage:**
+> "Show me all the product categories in the store."
+
 ---
 
 ## 🛒 Order Tools

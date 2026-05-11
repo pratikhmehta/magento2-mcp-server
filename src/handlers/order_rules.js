@@ -31,7 +31,7 @@ export function applyRules(order, event_type) {
   } = order;
 
   // Note: In a production system, these values would come from Admin Config
-  const paymentMethod = payment?.method;
+  const paymentMethod = payment ? payment.method : undefined;
   const isWholesale = customer_group_id === 2; // Assuming 2 is Wholesale group ID
 
   // Rule 1: event=paid AND payment_method=paypal AND total > 0

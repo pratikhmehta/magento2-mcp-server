@@ -89,7 +89,7 @@ export const ReportHandler = {
 
     // Sanitize cells to prevent CSV injection (e.g., lines starting with =, +, -, @)
     const sanitizeCell = (cell) => {
-      const str = String(cell ?? "");
+      const str = String((cell === null || cell === undefined) ? "" : cell);
       if (
         str.startsWith("=") ||
         str.startsWith("+") ||

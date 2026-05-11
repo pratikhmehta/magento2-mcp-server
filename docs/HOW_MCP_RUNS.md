@@ -61,6 +61,7 @@ Here is the full picture of what is running and how the parts talk to each other
 │                         │  • check_inventory_alerts     │  │
 │                         │  • process_order_event        │  │
 │                         │  • customer_chat              │  │
+│                         │  • list_categories            │  │
 │                         └──────────────┬────────────────┘  │
 │                                        │                    │
 │                                        │ HTTP REST calls    │
@@ -114,7 +115,7 @@ A reusable HTTP client is set up with:
 
 ### Step 3 — Tools are loaded automatically
 
-The server scans the `src/tools/` folder and loads every `.js` file it finds. Each file registers itself as an MCP tool. You never need to manually list your tools — just drop a new file in the folder and it appears automatically.
+The server scans the `src/tools/` folder and loads every `.js` file it finds. Each file registers itself as an MCP tool. You never need to manually list your tools — just drop a new file in the folder and it appears automatically. For example, it will load `check_inventory_alerts`, `process_order_event`, `customer_chat`, and the new `list_categories`.
 
 ### Step 4 — MCP transport opens
 
@@ -519,7 +520,7 @@ Expected output:
 ```
 Config validated ✓
 Magento client ready ✓
-Tools loaded: check_inventory_alerts, process_order_event, customer_chat
+Tools loaded: check_inventory_alerts, process_order_event, customer_chat, list_categories
 MCP server running on stdio transport
 ```
 

@@ -70,11 +70,30 @@ export class StoreHandler {
         store_view: store_code,
         name: product.name,
         price: product.price,
-        description: product.custom_attributes?.find(a => a.attribute_code === 'description')?.value || "No description",
+        description: (product.custom_attributes && product.custom_attributes.find(a => a.attribute_code === 'description')) ? product.custom_attributes.find(a => a.attribute_code === 'description').value : "No description",
         status: product.status === 1 ? "Enabled" : "Disabled"
       };
     } catch (error) {
       logger.error('STORE_PRODUCT_LOCALIZED_ERROR', { sku, store_code, error: error.message });
+      throw error;
+    }
+  }
+
+  /**
+   * Get the category tree from Magento
+   */
+  static async listCategories() {
+    const cacheKey = 'category:tree';
+    const cached = cacheGet(cacheKey);
+    if (cached) return cached;
+
+    try {
+      // Fetch the whole tree
+      const tree = await magento.get('/categories');
+      cacheSet(cacheKey, tree, TTL.products);
+      return tree;
+    } catch (error) {
+      logger.error('CATEGORY_LIST_ERROR', { error: error.message });
       throw error;
     }
   }

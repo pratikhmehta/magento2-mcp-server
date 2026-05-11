@@ -46,17 +46,18 @@ function sanitize(details) {
 }
 
 function log(level, action, details) {
+  const safeAction = String(action).replace(/[\r\n]/g, " "); // Prevent CRLF Log Injection
   const logEntry = {
     timestamp: new Date().toISOString(),
     level,
-    action,
+    action: safeAction,
     ...sanitize(details),
   };
 
   const logString = JSON.stringify(logEntry) + "\n";
 
   // Write to stderr so it doesn't corrupt the MCP stdio transport buffer
-  process.stderr.write(`[${logEntry.timestamp}] [${level}] ${action}\n`);
+  process.stderr.write(`[${logEntry.timestamp}] [${level}] ${safeAction}\n`);
 
   // Append to the file asynchronously so it doesn't block the event loop
   fs.appendFile(logFilePath, logString, "utf8", (err) => {

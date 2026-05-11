@@ -4,7 +4,6 @@ import MockAdapter from 'axios-mock-adapter';
 
 // We need to mock the axios instance created inside magento.js
 // Since magento.js exports 'magento' which uses 'client' (an axios instance)
-import { magento } from '../src/lib/magento.js';
 
 describe('OrderWriter Handler', () => {
   let mock;

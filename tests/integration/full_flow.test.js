@@ -3,13 +3,12 @@ import { InventoryAlertHandler } from '../../src/handlers/inventory_alerts_handl
 import { OrderAutomationHandler } from '../../src/handlers/order_automation_handler.js';
 import { AICustomerHandler } from '../../src/handlers/ai_customer_handler.js';
 import { sendAlert } from '../../src/handlers/notifier.js';
+import { config } from '../../src/config.js';
 
 // Mock Notifier
 jest.mock('../../src/handlers/notifier.js');
 
 describe('Full Flow Integration Tests', () => {
-  const BASE_URL = 'https://mini-hypermarket.ddev.site/rest/V1';
-
   beforeAll(() => {
     // Disable real network requests
     nock.disableNetConnect();
@@ -28,8 +27,8 @@ describe('Full Flow Integration Tests', () => {
   describe('Inventory Alert Flow', () => {
     test('should fetch low stock and trigger notification', async () => {
       // 1. Mock Magento Response
-      nock('https://mini-hypermarket.ddev.site')
-        .get('/rest/V1/inventory/source-items')
+      nock(config.MAGENTO_BASE_URL)
+        .get("/inventory/source-items")
         .query(true)
         .reply(200, {
           items: [
@@ -61,13 +60,13 @@ describe('Full Flow Integration Tests', () => {
   describe('Order Automation Flow', () => {
     test('should process paid event and update status', async () => {
       // 1. Mock Get Order
-      nock('https://mini-hypermarket.ddev.site')
-        .get('/rest/V1/orders/123')
-        .reply(200, { id: 123, increment_id: '100001', status: 'pending' });
+      nock(config.MAGENTO_BASE_URL)
+        .get("/orders/123")
+        .reply(200, { id: 123, increment_id: "100001", status: "pending" });
 
       // 2. Mock Status Update
-      nock('https://mini-hypermarket.ddev.site')
-        .post('/rest/V1/orders/123/comments')
+      nock(config.MAGENTO_BASE_URL)
+        .post("/orders/123/comments")
         .reply(200, { success: true });
 
       // 3. Run Handler
@@ -85,13 +84,18 @@ describe('Full Flow Integration Tests', () => {
   describe('AI Customer Service Flow', () => {
     test('should respond to chat with order context', async () => {
       // 1. Mock Order History Lookup
-      nock('https://mini-hypermarket.ddev.site')
-        .get('/rest/V1/orders')
+      nock(config.MAGENTO_BASE_URL)
+        .get("/orders")
         .query(true)
         .reply(200, {
           items: [
-            { increment_id: '100001', status: 'shipped', grand_total: 50, order_currency_code: 'USD' }
-          ]
+            {
+              increment_id: "100001",
+              status: "shipped",
+              grand_total: 50,
+              order_currency_code: "USD",
+            },
+          ],
         });
 
       // 2. Mock Anthropic API (via nock)

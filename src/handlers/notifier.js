@@ -77,12 +77,21 @@ async function sendEmail(alert) {
   });
 
   try {
+    // Escape HTML to prevent XSS in email clients
+    const escapeHtml = (unsafe) =>
+      String(unsafe)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
     const mailOptions = {
       from: `"Magento MCP" <${SMTP_USER}>`,
       to: ALERT_EMAIL,
       subject: alert.subject,
       text: alert.body,
-      html: `<p>${alert.body.replace(/\n/g, "<br>")}</p>`,
+      html: `<p>${escapeHtml(alert.body).replace(/\n/g, "<br>")}</p>`,
       attachments: [],
     };
 

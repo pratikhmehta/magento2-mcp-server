@@ -30,7 +30,7 @@ export const OrderAutomationHandler = {
 
     const searchCriteria =
       `searchCriteria[filter_groups][0][filters][0][field]=status&` +
-      `searchCriteria[filter_groups][0][filters][0][value]=${status}&` +
+      `searchCriteria[filter_groups][0][filters][0][value]=${encodeURIComponent(status)}&` +
       `searchCriteria[pageSize]=${limit}&` +
       `searchCriteria[sortOrders][0][field]=created_at&` +
       `searchCriteria[sortOrders][0][direction]=DESC`;
@@ -120,7 +120,7 @@ export const OrderAutomationHandler = {
 
     const searchCriteria =
       `searchCriteria[filter_groups][0][filters][0][field]=increment_id&` +
-      `searchCriteria[filter_groups][0][filters][0][value]=${increment_id}`;
+      `searchCriteria[filter_groups][0][filters][0][value]=${encodeURIComponent(increment_id)}`;
 
     try {
       const response = await magento.get(`/orders?${searchCriteria}`);
@@ -208,46 +208,61 @@ export const OrderAutomationHandler = {
       throw error;
     }
 
-    // Decide Action based on Event Type
-    let action_taken = "none";
-    let new_status = order.status;
-
     try {
+      const timestamp = new Date().toISOString();
+
       switch (event_type) {
-        case "paid":
-          action_taken = await this.triggerFulfilment(order);
-          new_status = "processing";
+        case "paid": {
+          const action = await this.triggerFulfilment(order);
           await this.updateMagentoStatus(
             order_id,
             "processing",
             "Order paid, sent to fulfilment",
           );
-          break;
+          cacheInvalidatePrefix("orders:");
+          return {
+            order_id,
+            action_taken: action,
+            new_status: "processing",
+            timestamp,
+          };
+        }
 
         case "shipped":
-          action_taken = "updated_status_to_complete";
-          new_status = "complete";
           await this.updateMagentoStatus(
             order_id,
             "complete",
             "Order shipped, marked as complete",
           );
-          break;
+          cacheInvalidatePrefix("orders:");
+          return {
+            order_id,
+            action_taken: "updated_status_to_complete",
+            new_status: "complete",
+            timestamp,
+          };
 
         case "cancelled":
-          action_taken = "updated_status_to_canceled";
-          new_status = "canceled";
           await this.updateMagentoStatus(
             order_id,
             "canceled",
             "Order cancelled by event",
           );
-          break;
+          cacheInvalidatePrefix("orders:");
+          return {
+            order_id,
+            action_taken: "updated_status_to_canceled",
+            new_status: "canceled",
+            timestamp,
+          };
 
         case "new":
-          action_taken = "pending_payment";
-          new_status = "pending";
-          break;
+          return {
+            order_id,
+            action_taken: "pending_payment",
+            new_status: "pending",
+            timestamp,
+          };
 
         default:
           throw new Error(`Invalid event type: ${event_type}`);
@@ -257,16 +272,6 @@ export const OrderAutomationHandler = {
         `Order automation failed for #${order_id}: ${error.message}`,
       );
     }
-
-    // Invalidate order cache after a write operation
-    cacheInvalidatePrefix("orders:");
-
-    return {
-      order_id,
-      action_taken,
-      new_status,
-      timestamp: new Date().toISOString(),
-    };
   },
 
   /**

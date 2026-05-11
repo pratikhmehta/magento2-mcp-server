@@ -77,13 +77,33 @@ export const ReportHandler = {
       o.order_currency_code,
     ]);
 
+    // Sanitize cells to prevent CSV injection (e.g., lines starting with =, +, -, @)
+    const sanitizeCell = (cell) => {
+      const str = String(cell ?? "");
+      if (
+        str.startsWith("=") ||
+        str.startsWith("+") ||
+        str.startsWith("-") ||
+        str.startsWith("@")
+      ) {
+        return `'${str}`;
+      }
+      return str;
+    };
+
     const csvContent = [
       headers.join(","),
-      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+      ...rows.map((row) =>
+        row.map((cell) => `"${sanitizeCell(cell)}"`).join(","),
+      ),
     ].join("\n");
 
-    // Save to file
-    const fileName = `order_report_${status}_${Date.now()}.csv`;
+    // Save to file (Sanitize status to prevent path traversal)
+    const safeStatus = status.replace(/[^a-z0-9]/gi, "_");
+    // Use path.basename to guarantee no directory traversal to strict code scanners
+    const fileName = path.basename(
+      `order_report_${safeStatus}_${Date.now()}.csv`,
+    );
     const reportsDir = path.join(__dirname, "../../reports");
 
     // Ensure reports directory exists

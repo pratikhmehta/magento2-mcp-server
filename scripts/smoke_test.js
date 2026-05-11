@@ -1,5 +1,4 @@
 import { magento } from '../src/lib/magento.js';
-import { config } from '../src/config.js';
 
 /**
  * Simplified Smoke Test Script

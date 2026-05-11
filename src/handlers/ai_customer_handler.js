@@ -43,9 +43,10 @@ export const AICustomerHandler = {
     let orderContext =
       "No customer email provided, so no order history is available.";
     if (customer_email) {
+      const safeEmail = encodeURIComponent(customer_email);
       const searchCriteria =
         `searchCriteria[filter_groups][0][filters][0][field]=customer_email&` +
-        `searchCriteria[filter_groups][0][filters][0][value]=${customer_email}&` +
+        `searchCriteria[filter_groups][0][filters][0][value]=${safeEmail}&` +
         `searchCriteria[pageSize]=5&` +
         `searchCriteria[sortOrders][0][field]=created_at&` +
         `searchCriteria[sortOrders][0][direction]=DESC`;

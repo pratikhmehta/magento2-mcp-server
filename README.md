@@ -8,36 +8,44 @@ A production-ready **Model Context Protocol (MCP)** server that connects AI Agen
 - **🛒 Order Intelligence**: Fetch detailed order data by ID, list recent orders, and track status history.
 - **🤖 AI Customer Service**: Integrated handler for LLM-powered customer chat with full Magento order context.
 - **⚡ Order Automation**: Handle lifecycle events (Paid, Shipped, Cancelled) with automated status transitions.
-- **🛡️ Production Ready**: Includes rate limiting, resilient retries (503 handling), and structured logging.
+- **🛡️ Production Ready**: Includes rate limiting, resilient retries (503 handling), strict Zod input validation, and background memory garbage collection.
+- **📜 Audit Trail**: All automated actions are securely logged to a structured JSON file (`automated-actions.log`) with PII sanitized.
 - **🌐 Agent Friendly**: Pre-configured with `.cursorrules` and `.windsurfrules` for zero-friction integration with AI IDEs.
 - **📖 Comprehensive Docs**: Detailed [API Reference](API.md) for all available tools.
 
 ## 🛠️ Setup & Installation
 
 ### 1. Prerequisites
+
 - **Node.js 20+** (Required for modern MCP features)
 - **Magento 2 Store** with REST API access (Integrations Token)
 - **LLM API Key** (e.g., Google Gemini) for AI chat features
 
 ### 2. Configuration
+
 Copy the environment template and fill in your store details:
+
 ```bash
 cp .env.example .env
 # Edit .env with your MAGENTO_BASE_URL and MAGENTO_TOKEN
 ```
 
 ### 3. Installation
+
 ```bash
 npm install
 ```
 
 ### 4. Connectivity Check
+
 Verify your Magento connection before starting the server:
+
 ```bash
 npm run smoke
 ```
 
 ### 5. Running the Server
+
 ```bash
 npm start
 ```
@@ -47,33 +55,40 @@ npm start
 Once the server is running and connected to your AI Agent (Cursor, Claude, etc.), you can simply ask questions in plain English. The AI will translate your request into Magento API calls.
 
 ### 📦 Inventory & Stock
-- *"Check for any low stock items in the 'SHIRT' category."*
-- *"Show me the inventory levels for SKU 'BAG-001'."*
-- *"Alert me if any products have less than 5 units left."*
+
+- _"Check for any low stock items in the 'SHIRT' category."_
+- _"Show me the inventory levels for SKU 'BAG-001'."_
+- _"Alert me if any products have less than 5 units left."_
 
 ### 🏷️ Product Catalog
-- *"Show me the price and description for SKU 'WSH12-M-Blue'."*
-- *"List all products that have 'Yoga' in the name."*
-- *"Find the products in Category 15."*
+
+- _"Show me the price and description for SKU 'WSH12-M-Blue'."_
+- _"List all products that have 'Yoga' in the name."_
+- _"Find the products in Category 15."_
 
 ### 📊 Business Reporting
-- *"Generate an Excel report of all completed orders from the last 7 days."*
-- *"Create a CSV of all pending orders for this month."*
+
+- _"Generate an Excel report of all completed orders from the last 7 days."_
+- _"Create a CSV of all pending orders for this month."_
 
 ### 🛒 Order Management
-- *"Give me the full details for order #211000000293."*
-- *"What are the last 5 pending orders?"*
-- *"Find all orders placed by customer customer@example.com."*
+
+- _"Give me the full details for order #211000000293."_
+- _"What are the last 5 pending orders?"_
+- _"Find all orders placed by customer customer@example.com."_
 
 ### 🤖 AI Customer Support
-- *"Ask the AI assistant: 'What is the return policy for my last order?' for customer email example@gmail.com."*
+
+- _"Ask the AI assistant: 'What is the return policy for my last order?' for customer email example@gmail.com."_
 
 ## 🔌 Usage & Integration
 
 There are three ways to use these Magento tools depending on your workflow:
 
 ### Option 1: Web Dashboard (No AI Client Required) 🌐
+
 The easiest way to get a visual interface for managing your store without using specialized AI software.
+
 1. Install dependencies: `npm install`
 2. Start the interactive dashboard:
    ```bash
@@ -82,11 +97,15 @@ The easiest way to get a visual interface for managing your store without using 
 3. Open the provided link (usually `http://localhost:3000`) in your browser to see a professional UI for all tools.
 
 ### Option 2: AI Agents (Cursor, Windsurf, Claude) 🤖
+
 #### Cursor / Windsurf
+
 Simply open this project folder in your IDE. The agent will automatically recognize the tools via the included `.cursorrules` or `.windsurfrules`.
 
 #### Claude Desktop
+
 Add this to your `claude_desktop_config.json`:
+
 ```json
 {
   "mcpServers": {
@@ -104,14 +123,38 @@ Add this to your `claude_desktop_config.json`:
 ```
 
 ### Option 3: Command Line (CLI) 💻
+
 For quick terminal access without a GUI:
+
 ```bash
 npx mcp-cli build/index.js
 ```
+
 You can then run commands like `list_products` or `generate_order_report` directly.
 
+### Option 4: Remote Server / PM2 (SSE Transport) 🌍
+
+If you want to run the MCP server as a 24/7 background service on a remote VPS and connect to it over HTTP (Server-Sent Events):
+
+1. Start the daemon using the provided ecosystem config:
+   ```bash
+   npx pm2 start ecosystem.config.cjs
+   ```
+2. The server will run in the background, automatically restart on crashes, and listen for SSE connections on `http://localhost:3000/sse`.
+3. You can monitor live logs using `npx pm2 logs magento2-mcp-server`.
+
+_Note: AI Clients must support SSE to connect via this method. For remote Claude/Cursor connections, using Stdio over SSH is recommended._
+
 ## 🛡️ Safety & Permissions
-This server implements a **read-only default** for sensitive operations. Any write operations (like updating order status) require explicit confirmation unless configured otherwise via the provided rule hooks.
+
+This server is designed for **permission-free automation** in production environments. AI agents execute commands autonomously without prompting end users.
+
+To ensure absolute safety, it utilizes:
+
+1. **Strict Zod schemas** for input validation (rejecting AI hallucinations).
+2. Robust **circuit breakers (rate limits)** to prevent API flooding.
+3. A fully sanitized **JSON audit log** to securely record all write operations.
 
 ## 📄 License
+
 MIT © Magento MCP Server Contributors

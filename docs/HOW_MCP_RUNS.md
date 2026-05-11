@@ -118,7 +118,8 @@ The server scans the `src/tools/` folder and loads every `.js` file it finds. Ea
 
 ### Step 4 — MCP transport opens
 
-The server opens a **stdio transport** — this means it listens for messages on standard input and writes responses to standard output. This is how Claude talks to it. It is like a phone line that stays open, waiting for calls.
+The server opens a transport layer to listen for AI messages. By default locally, it uses **stdio** (standard input/output), which is like a direct phone line to Claude Desktop or Cursor.
+Alternatively, it can be started with PM2 to use **SSE (Server-Sent Events)**, which listens over HTTP for remote connections.
 
 ### Step 5 — Server is ready
 
@@ -167,11 +168,11 @@ Step 8:  Notifier fires alerts
          Slack message posted
               │
               ▼
-Step 9:  MCP Server returns result to Claude
+Step 9:  MCP Server returns result to AI
          { alerts_sent: 2, skus: ["SHOE-42", "BAG-01"] }
               │
               ▼
-Step 10: Claude reports back to the user
+Step 10: AI reports back to the user
          "Found 2 low stock items: SHOE-42 (qty 3)
           and BAG-01 (qty 7). Alerts have been sent."
 ```
@@ -213,12 +214,11 @@ The cooldown system stores the time of the last alert for each SKU in memory. If
 
 ### Key files involved
 
-| File                            | Role                                             |
-| ------------------------------- | ------------------------------------------------ |
-| `src/tools/inventory_alerts.js` | MCP tool definition and input validation         |
-| `src/handlers/alert_rules.js`   | Cooldown logic, threshold checks, SKU exclusions |
-| `src/handlers/notifier.js`      | Sends email, Slack, and webhook notifications    |
-| `src/lib/magento.js`            | Makes the actual HTTP call to Magento            |
+| File                                       | Role                                             |
+| ------------------------------------------ | ------------------------------------------------ |
+| `src/handlers/inventory_alerts_handler.js` | Cooldown logic, threshold checks, and validation |
+| `src/handlers/notifier.js`                 | Sends email, Slack, and webhook notifications    |
+| `src/lib/magento.js`                       | Makes the actual HTTP call to Magento            |
 
 ---
 
@@ -272,12 +272,11 @@ Imagine Magento sends the same `order_paid` event twice due to a network hiccup.
 
 ### Key files involved
 
-| File                            | Role                                                       |
-| ------------------------------- | ---------------------------------------------------------- |
-| `src/tools/order_automation.js` | MCP tool, input validation, orchestration                  |
-| `src/handlers/order_rules.js`   | Rules engine — evaluates which action to take              |
-| `src/handlers/order_writer.js`  | Writes changes back to Magento (status, shipment, restock) |
-| `src/lib/magento.js`            | HTTP calls to Magento REST API                             |
+| File                                       | Role                                                       |
+| ------------------------------------------ | ---------------------------------------------------------- |
+| `src/handlers/order_automation_handler.js` | Core rules engine and event processing logic               |
+| `src/handlers/order_writer.js`             | Writes changes back to Magento (status, shipment, restock) |
+| `src/lib/magento.js`                       | HTTP calls to Magento REST API                             |
 
 ---
 
@@ -285,7 +284,7 @@ Imagine Magento sends the same `order_paid` event twice due to a network hiccup.
 
 ### What it does
 
-Handles customer chat messages using Claude AI, with access to the customer's real order history from Magento. It can answer questions, look up orders, and escalate to a human when needed.
+Handles customer chat messages using Gemini AI, with access to the customer's real order history from Magento. It can answer questions, look up orders, and escalate to a human when needed.
 
 ### How it is triggered
 
@@ -294,20 +293,16 @@ A chat widget, support platform, or API caller sends a message to the `customer_
 ### The flow in plain language
 
 1. **Message arrives** — `{ session_id: "abc", message: "Where is my order?", customer_email: "ali@example.com" }`.
-2. **Intent classification runs first** — a fast keyword check tries to figure out what the customer wants:
-   - "where is my order" → intent: `order_status`
-   - "I want a refund" → intent: `return`
-   - "this is terrible" → intent: `complaint`
-3. **Fast path for simple queries** — if intent is `order_status` with high confidence, the system fetches the order directly from Magento and replies without calling Claude at all. This is faster and cheaper.
-4. **For complex queries, Claude takes over** — the system builds a message with:
-   - A system prompt explaining Claude's role as your store assistant
+2. **Context Assembly** — the system looks up the customer's last 5 orders from Magento to provide background context.
+3. **Gemini takes over** — the system builds a message with:
+   - A system prompt explaining the AI's role as your store assistant
    - The customer's last 5 orders injected as context
    - The full conversation history for this session
    - The new customer message
-5. **Claude generates a reply** — reads all the context and writes a helpful, accurate response.
-6. **Escalation check** — if the customer is very upset or the query is too complex, Claude signals `escalate: true` and the system can route to a human agent.
-7. **History is stored** — the last 10 messages of the conversation are kept in memory for follow-up questions.
-8. **Reply is returned** — the customer sees Claude's response in the chat.
+4. **Gemini generates a reply** — reads all the context and writes a helpful, accurate response.
+5. **Escalation check** — if the customer is very upset or the query is too complex, Gemini signals `ESCALATE: TRUE` and the system can route to a human agent.
+6. **History is stored** — the conversation history is kept in memory (and garbage-collected after 1 hour of inactivity).
+7. **Reply is returned** — the customer sees the AI's response in the chat.
 
 ### The session system explained
 
@@ -327,40 +322,31 @@ Without the session, the AI would not know what "my order" refers to in the seco
 
 ### Key files involved
 
-| File                                | Role                                          |
-| ----------------------------------- | --------------------------------------------- |
-| `src/tools/ai_customer_service.js`  | MCP tool, session management, Claude API call |
-| `src/handlers/intent_classifier.js` | Fast keyword-based intent detection           |
-| `src/lib/magento.js`                | Fetches customer order history                |
-| Anthropic Claude API                | Generates the actual chat reply               |
+| File                                  | Role                                        |
+| ------------------------------------- | ------------------------------------------- |
+| `src/handlers/ai_customer_handler.js` | Handles Gemini API chat and session history |
+| `src/lib/magento.js`                  | Fetches customer order history              |
+| Google Generative AI                  | Generates the actual chat reply via Gemini  |
 
----
+## 8. How the AI (Gemini) Gets Involved
 
-## 8. How Claude (AI) Gets Involved
+The AI model is not always running. It only gets called when a tool needs it. Here is exactly what the system sends to Gemini when a customer chat arrives:
 
-Claude is not always running. It only gets called when a tool needs it. Here is exactly what the system sends to Claude when a customer chat arrives:
-
-### What goes into the Claude API call
+### What goes into the Gemini API call
 
 ```json
 {
-  "model": "claude-sonnet-4-20250514",
-  "max_tokens": 512,
-  "messages": [
-    {
-      "role": "system",
-      "content": "You are a helpful assistant for [Store Name].
-                  You have access to the customer's order history below.
-                  If you cannot resolve the issue, reply with escalate: true.
-                  Always respond in the customer's language.
-
-                  CUSTOMER ORDER HISTORY:
-                  - Order #000123 | Placed 2 May | Status: Shipped | Total: ₹2,400
-                  - Order #000089 | Placed 10 Apr | Status: Delivered | Total: ₹800"
-    },
+  "systemInstruction": {
+    "parts": [
+      {
+        "text": "You are a Magento Store Assistant.\n               Your goal is to help customers with their inquiries using the provided order history.\n               Always respond in the customer's detected language.\n\n               Customer Context (ali@example.com):\n               - Order #000123: Status complete, Total 2400 USD, Date 2023-05-02\n               - Order #000089: Status processing, Total 800 USD, Date 2023-04-10\n               \n               If the customer is frustrated, asks for a human, or their issue cannot be resolved through information alone, include the instruction 'ESCALATE: TRUE' at the end of your response."
+      }
+    ]
+  },
+  "history": [
     {
       "role": "user",
-      "content": "Where is my latest order?"
+      "parts": [{ "text": "Where is my latest order?" }]
     }
   ]
 }
@@ -635,6 +621,7 @@ Meanwhile in the back:
 | **Idempotency**       | Doing the same operation twice gives the same result — no double actions   |
 | **Escalation**        | When the AI decides a human agent should take over the conversation        |
 | **stdio transport**   | The MCP server listens via keyboard input / terminal output (used locally) |
+| **SSE transport**     | Server-Sent Events — a way to connect to the MCP server remotely over HTTP |
 | **Session**           | A memory of one customer's conversation, stored temporarily in RAM         |
 | **Intent**            | What the customer is trying to do (check order, request refund, etc.)      |
 | **Fast path**         | Skipping Claude for simple queries to save time and cost                   |
@@ -642,6 +629,30 @@ Meanwhile in the back:
 | **Smoke test**        | A quick sanity check run before anything else, to catch broken config      |
 | **Docker Compose**    | A tool that starts all your containers with one command                    |
 | **Health check**      | Docker's automatic test to see if the server is still alive                |
+
+---
+
+## 15. Production Execution & PM2
+
+When running in a production environment, this server relies on robust memory management and strict validation to run continuously as a background process:
+
+1. **Zod Input Validation:** Every tool call from the AI is strictly parsed. If the AI hallucinates a parameter, it is rejected before it ever hits the Magento API.
+2. **Garbage Collection:** Memory caches and rate limiters are actively swept every 60 seconds to preserve RAM.
+3. **Audit Logging:** Every automated write action is logged to `automated-actions.log` with any PII safely masked.
+
+### Deploying as a Background Service
+
+If deploying to a VPS, you can run the server continuously using **PM2** and the SSE (Server-Sent Events) transport layer. The configuration automatically applies optimized V8 engine flags (like `--optimize-for-size`).
+
+```bash
+# Start the server
+npx pm2 start ecosystem.config.cjs
+
+# View live logs
+npx pm2 logs magento2-mcp-server
+```
+
+This exposes an HTTP endpoint at `http://localhost:3000/sse` that web applications or remote AI agents can connect to.
 
 ---
 

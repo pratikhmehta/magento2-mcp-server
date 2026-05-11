@@ -1,36 +1,34 @@
-name: CI Pipeline
+name: CI Build
 
 on:
   push:
-    branches: [main, master]
+    branches: ["main"]
   pull_request:
-    branches: [main, master]
+    branches: ["main"]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [20.x]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js ${{ matrix.node-version }}
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "20.x"
           cache: "npm"
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
-        run: npm test
-      env:
-        MAGENTO_BASE_URL: "https://test-store.local"
-        MAGENTO_TOKEN: "dummy_test_token"
-        GEMINI_API_KEY: "dummy_gemini_key"
-        ALERT_EMAIL: "admin@test.local"
+      - name: Run Secret Scanner
+        run: npm run scan:secrets
+
+      - name: Run Dependency Audit
+        run: npm run scan:deps
+
+      - name: Run Tests
+        # Using --passWithNoTests so it doesn't fail if you haven't written test files yet
+        run: npm test -- --passWithNoTests

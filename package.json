@@ -21,9 +21,9 @@
   },
   "scripts": {
     "start": "node index.js",
-    "smoke": "node scripts/smoke_test.js",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "smoke": "node scripts/smoke.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "scan:secrets": "npx --yes @secretlint/quick-start \"**/*\"",
     "scan:deps": "npm audit --audit-level=high"
   },
@@ -39,8 +39,28 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.5",
     "axios-mock-adapter": "^2.1.0",
+    "babel-jest": "^29.7.0",
     "jest": "^29.7.0",
     "nock": "^14.0.0"
+  },
+  "jest": {
+    "testMatch": [
+      "**/src/**/*.test.js"
+    ]
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ]
+    ]
   }
 }

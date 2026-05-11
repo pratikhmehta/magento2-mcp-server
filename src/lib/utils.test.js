@@ -8,7 +8,7 @@ describe("Utility Functions: jsonToCsv", () => {
     ];
     const csv = jsonToCsv(data);
 
-    expect(csv).toContain("id,name");
+    expect(csv).toContain('"id","name"');
     expect(csv).toContain('"1","Product A"');
     expect(csv).toContain('"2","Product B"');
   });

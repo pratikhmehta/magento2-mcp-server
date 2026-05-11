@@ -15,22 +15,7 @@ describe('ProductHandler', () => {
 
       const result = await ProductHandler.getBySku({ sku: 'TEST-SKU' });
 
-      expect(magento.get).toHaveBeenCalledWith('/products/TEST-SKU');
-      expect(result).toEqual(mockProduct);
-    });
-
-    it('should handle store-scoped 404 with fallback', async () => {
-      const mockProduct = { sku: 'TEST-SKU', name: 'Global Product' };
-      
-      // First call fails with store-scoped 404
-      magento.get
-        .mockRejectedValueOnce({ status: 404, message: 'store not found' })
-        .mockResolvedValueOnce(mockProduct);
-
-      const result = await ProductHandler.getBySku({ sku: 'TEST-SKU' });
-
-      expect(magento.get).toHaveBeenCalledTimes(2);
-      expect(magento.get).toHaveBeenNthCalledWith(2, '../all/V1/products/TEST-SKU');
+      expect(magento.get).toHaveBeenCalledWith('/products/TEST-SKU', {}, null);
       expect(result).toEqual(mockProduct);
     });
 

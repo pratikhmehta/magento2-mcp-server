@@ -25,7 +25,8 @@ describe('OrderAutomationHandler', () => {
     expect(result.new_status).toBe('processing');
     expect(magento.post).toHaveBeenCalledWith(
       expect.stringContaining('123'),
-      expect.objectContaining({ statusHistory: expect.objectContaining({ status: 'processing' }) })
+      expect.objectContaining({ statusHistory: expect.objectContaining({ status: 'processing' }) }),
+      null
     );
   });
 

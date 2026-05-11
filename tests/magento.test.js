@@ -19,4 +19,21 @@ describe('Magento Library', () => {
     const result = await magento.post('/test', { foo: 'bar' });
     expect(result).toEqual(mockData);
   });
+
+  test('get should include X-Magento-Store-View header when storeCode is provided', async () => {
+    const mockData = { result: 'ok' };
+    const mockGet = axios.create().get;
+    mockGet.mockResolvedValue({ data: mockData });
+    
+    await magento.get('/test', { p: 1 }, 'mn_mn');
+    
+    expect(mockGet).toHaveBeenCalledWith(
+      'test',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          'X-Magento-Store-View': 'mn_mn'
+        })
+      })
+    );
+  });
 });

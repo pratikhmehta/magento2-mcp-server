@@ -22,7 +22,7 @@ describe('InventoryAlertHandler', () => {
     
     expect(result).toHaveLength(1);
     expect(result[0].sku).toBe('LOW-01');
-    expect(magento.get).toHaveBeenCalledWith(expect.stringContaining('value=10'));
+    expect(magento.get).toHaveBeenCalledWith(expect.stringContaining('value=10'), expect.anything(), null);
   });
 
   test('should apply SKU glob filter', async () => {

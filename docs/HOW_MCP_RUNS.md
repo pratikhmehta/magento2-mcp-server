@@ -429,10 +429,10 @@ MAGENTO_BASE_URL=https://yourstore.com
 # Admin API token — generate in Magento Admin → System → Integrations
 MAGENTO_TOKEN=your_magento_api_token_here
 
-# ─── Anthropic / Claude ──────────────────────────────────────────
+# ─── Google Gemini ───────────────────────────────────────────────
 
-# Your Claude API key from console.anthropic.com
-GEMINI_API_KEY=sk-ant-xxxxxxxxxxxxx
+# Your Gemini API key from Google AI Studio
+GEMINI_API_KEY=your_gemini_api_key_here
 
 # ─── Notification Channels ───────────────────────────────────────
 

@@ -24,8 +24,8 @@
     "smoke": "node scripts/smoke_test.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "scan:secrets": "npx @secretlint/quick-start \"**/*\"",
-    "scan:deps": "npm audit"
+    "scan:secrets": "npx --yes @secretlint/quick-start \"**/*\"",
+    "scan:deps": "npm audit --audit-level=high"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",

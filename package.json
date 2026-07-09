@@ -39,7 +39,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.0",
+    "@babel/core": "^7.29.6",
     "@babel/preset-env": "^7.29.5",
     "axios-mock-adapter": "^2.1.0",
     "babel-jest": "^29.7.0",
